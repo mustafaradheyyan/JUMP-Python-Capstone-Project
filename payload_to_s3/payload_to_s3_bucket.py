@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     
         request_data = event['body']
         request_df = pd.read_json(request_data)
-        csv_of_data = request_df.to_csv(LOCAL_FILENAME, index=False)
+        request_df.to_csv(LOCAL_FILENAME, index=False)
 
         try:
             with open(LOCAL_FILENAME) as f:
