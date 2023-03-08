@@ -32,19 +32,17 @@ except pymysql.MySQLError as e:
 logger.info("SUCCESS: Connection to RDS MySQL instance succeeded")
 
 
-def prep_insert_qry(args, colnames):
+def prep_insert_qry(colnames):
     """this query is secure as long as `colnames` contains trusted data
     standard parametrized query mechanism secures `args`"""
 
     binds,use = [],[]
 
-    for colname, value in zip(colnames,args):
-        if value is not None:
-            use.extend([colname,","])
-            binds.extend(["%s",","])
+    for colname in colnames:
+        use.extend([colname,","])
+        binds.extend(["%s",","])
 
-
-    parts = [f"insert into {TABLE_NAME} ("]
+    parts = [f"insert ignore into {TABLE_NAME} ("]
     use = use[:-1]
     binds = binds[:-1]
     
@@ -55,7 +53,7 @@ def prep_insert_qry(args, colnames):
 
     qry = " ".join(parts)
 
-    return qry, tuple([v for v in args if not v is None])
+    return qry
 
 
 def lambda_handler(event, context):
@@ -71,31 +69,19 @@ def lambda_handler(event, context):
     
     with open(FILE_NAME, newline='') as file:
         reader = csv.reader(file)
-        next(reader, None)
-        csv_data = list(reader)
-    
-    attributes_list = [
-        "event_time", "latitude", "longitude", "depth", "mag", "magtype",
-        "nst", "gap", "dmin", "rms", "net", "id", "updated", "type", "horizontalerror",
-        "deptherror", "magerror", "magnst", "locationsource", "magsource"
-    ]
-    
-    count = 0
-    duplicateCount = 0
-    
-    for row in csv_data:
-        query, data = prep_insert_qry(row, attributes_list)
-        with conn.cursor() as cur:
-            try:
-                cur.execute(query, data)
-                count += 1
-            except pymysql.err.IntegrityError:
-                duplicateCount += 1
-            except Exception as e:
-                raise e
-        conn.commit()
-    
-    print(f"Added {count} items to RDS MySQL table out of {count + duplicateCount} attempted")
+        attributes_list = next(reader, None)
+        csv_data = [tuple(line) for line in reader]
+
+    with conn.cursor() as cur:
+        query = prep_insert_qry(attributes_list)
+        try:
+            cur.fast_executemany = True
+            cur.executemany(query, csv_data)
+        except pymysql.err.IntegrityError as e:
+            pass
+        except Exception as e:
+            raise e
+    conn.commit()
     
     return {
         'statusCode': 200,
