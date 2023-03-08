@@ -5,6 +5,7 @@ import sys
 import csv
 import logging
 import pymysql
+from ETL import data_cleaning
 
 s3 = boto3.client('s3')
 
@@ -66,6 +67,9 @@ def lambda_handler(event, context):
     
     with open(FILE_NAME, 'wb') as file: 
         file.write(csv_content)
+    
+    csv_content_df = data_cleaning(pd.read_csv(FILE_NAME))
+    csv_content_df.to_csv(FILE_NAME, index=False)
     
     with open(FILE_NAME, newline='') as file:
         reader = csv.reader(file)
