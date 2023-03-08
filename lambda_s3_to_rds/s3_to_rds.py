@@ -87,6 +87,8 @@ def lambda_handler(event, context):
             raise e
     conn.commit()
     
+    print("Success")    
+
     return {
         'statusCode': 200,
         'body': json.dumps(event)
