@@ -5,9 +5,6 @@ import pandas as pd
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    # TODO implement
-    print(event) #this is to print the payload that the lambda function is getting
-    
     if event['rawPath'] == '/': #since the only goal for this lambda function is to get data we do not need an api gateway
         BUCKET_NAME = 'jan-python-23-capstone-team3' #targeting this specific bucket
         
