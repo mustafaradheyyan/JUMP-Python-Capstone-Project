@@ -1,13 +1,22 @@
 import json
 import math
+import zipfile
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+DATA_CLEANING_PATH = 'data_cleaning'
+DATA_TYPE = 'Global_Earthquake_Data.csv'
+FILE_PATH = f'{DATA_CLEANING_PATH}\{DATA_TYPE}'
+COMPRESSED_FILE_PATH = f'{DATA_CLEANING_PATH}\{DATA_TYPE}.zip'
+
 URL = "https://mfcp436giirb7jwlvgizni2w7m0agrmc.lambda-url.us-west-1.on.aws/"
-FILE_PATH = 'group_project\data-cleaning\Global_Earthquake_Data.csv\Global_Earthquake_Data.csv'
 ROWS_PER_PAYLOAD = 2500
+
+def unzip_zip_file():
+    with zipfile.ZipFile(COMPRESSED_FILE_PATH, 'r') as zip_ref:
+        zip_ref.extractall(DATA_CLEANING_PATH)
 
 def initialize_session() -> requests.Session:
     session = requests.Session()
@@ -38,6 +47,8 @@ def send_payload(payload_df: pd.DataFrame):
     
 def main():
     session = initialize_session()
+    
+    unzip_zip_file()
     
     earthquake_df = pd.read_csv(FILE_PATH)
     payload_df_generator = send_payload(earthquake_df)
