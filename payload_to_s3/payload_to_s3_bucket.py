@@ -10,18 +10,17 @@ def lambda_handler(event, context):
     
     if event['rawPath'] == '/': #since the only goal for this lambda function is to get data we do not need an api gateway
         BUCKET_NAME = 'jan-python-23-capstone-team3' #targeting this specific bucket
-        FILE_NAME = 'OUTPUT.csv' # replace with your object key
-        LOCAL_FILENAME = '/tmp/output.csv'
+        
+        request_json = json.loads(event['body'])
+        
+        FILE_NAME = request_json['file_name'] # replace with your object key
     
-        request_data = event['body']
+        request_data = request_json['data']
         request_df = pd.read_json(request_data)
-        request_df.to_csv(LOCAL_FILENAME, index=False)
+        request_csv = request_df.to_csv(index=False)
 
         try:
-            with open(LOCAL_FILENAME) as f:
-                string = f.read()
-                encoded_string = string.encode("utf-8")
-            s3.put_object(Bucket=BUCKET_NAME, Key=FILE_NAME, Body=encoded_string) #this uploads the file to the bucket it will replace/update the file
+            s3.put_object(Bucket=BUCKET_NAME, Key=FILE_NAME, Body=request_csv) #this uploads the file to the bucket it will replace/update the file
             return {
                 'statusCode': 200,
                 'body': "success"
