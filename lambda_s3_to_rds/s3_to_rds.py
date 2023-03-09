@@ -17,8 +17,6 @@ user_name = "admin"
 password = "9Sj3xtFraAJCGz9GzeDT"
 db_name = "earthquakes"
 
-# FILE_NAME = '/tmp/output.csv'
-
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -45,13 +43,9 @@ def lambda_handler(event, context):
     
     csv_string_io = StringIO(csv_content)
     
-    # with open(FILE_NAME, 'wb') as file:
-    #     file.write(csv_content)
-    
     csv_content_df = data_cleaning(pd.read_csv(csv_string_io))
     csv_string_io = StringIO(csv_content_df.to_csv(index=False))
     
-    # with open(FILE_NAME, newline='') as file:
     reader = csv.reader(csv_string_io)
     attributes_list = next(reader, None)
     csv_data = [tuple(line) for line in reader]
