@@ -54,11 +54,11 @@ def main():
     event, values = window.read()
     window.close()
     
-    if event == "Cancel": return
+    if event == "Submit": 
     
-    session = initialize_session()
+        session = initialize_session()
     
-    payload = {
+        payload = {
                 "time": [values[0]], "latitude": [values[1]], "longitude": [values[2]],
                 "depth": [values[3]], "mag": [values[4]], "magType": [values[5]],
                 "nst": [values[6]],"gap": [values[7]],"dmin": [values[8]],"rms": [values[9]],"net": [values[10]],"id": [values[11]],
@@ -69,8 +69,8 @@ def main():
    
     #for value in payload.values():
      #   print(value)
-    r = session.post(url=URL, data=json.dumps(payload), headers={'Content-type': 'application/json'})
-    print(r)
+        r = session.post(url=URL, data=json.dumps(payload), headers={'Content-type': 'application/json'})
+        print(r)
 
 if __name__ == "__main__":
     main()
