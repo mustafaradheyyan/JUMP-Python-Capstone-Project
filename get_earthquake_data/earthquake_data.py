@@ -72,7 +72,7 @@ def lambda_handler(event, context):
     print(event)#to check the data in event
         
     with conn.cursor() as cur:
-        query = get_rows(100)
+        query = get_rows(10000)
         try:
             cur.execute(query)
             query_data = cur.fetchall()
