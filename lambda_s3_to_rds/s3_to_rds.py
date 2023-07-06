@@ -8,14 +8,15 @@ import pymysql
 from io import StringIO
 from etl import data_cleaning
 from db_funcs import prep_insert_qry
+import rds_conn_info
 
 s3 = boto3.client('s3')
 
 # rds settings
-rds_host  = "capstone3-earthquakes.c5lobpudlayi.us-west-1.rds.amazonaws.com"
-user_name = "admin"
-password = "9Sj3xtFraAJCGz9GzeDT"
-db_name = "earthquakes"
+rds_host  = rds_conn_info.rds_host
+user_name = rds_conn_info.user_name
+password = rds_conn_info.password
+db_name = rds_conn_info.db_name
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
